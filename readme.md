@@ -5,7 +5,7 @@ Just a Backdoor from [Indonesian Backtrack Team](https://www.indonesianbacktrack
 
 # How to use
  1. Upload shell to your website target.
- 2. Open url shell, example : **site.com/pass=hasny&key=ganteng**. You can change it in line 78-85.
+ 2. Open url shell, example : **site.com/shellibt.php?pass=hasny&key=ganteng**. You can change it in line 78-85.
  3. There is a hidden form on a web server error pages, find themselves in the inspect element, default password is 'password'.
  4. Ready to use
 
