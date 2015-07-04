@@ -545,7 +545,6 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 		echo "</td></tr>";
 		}
 		?>
-		
 		<tr>
 			<td style="font-size:14px;">
 			<a href="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>">File</a> | 
@@ -563,39 +562,38 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 		<tr>
 			<td>
 				<table width="100%" style="background:transparent;" cellspacing="7px">
-				<tr style="font-weight:bold;"><td>Nama</td><td>Size</td><td>Last Edit</td><td>Perm</td><td>Action</td></tr>
-				<?php
-				//show directory
-				$handle = @opendir('.');
+					<tr style="font-weight:bold;"><td>Nama</td><td>Size</td><td>Last Edit</td><td>Perm</td><td>Action</td></tr>
+					<?php
+					//show directory
+					$handle = @opendir('.');
+					if ($handle) {
+						$files = Array();
 
-				if ($handle) {
-					$files = Array();
-
-					while (($file = readdir($handle)) !==false)
-					{
-						if(filetype($file)=='ls') {
-							array_push($files, $file);
-						} else {
-							array_push($files, $file);
+						while (($file = readdir($handle)) !==false)
+						{
+							if(filetype($file)=='ls') {
+								array_push($files, $file);
+							} else {
+								array_push($files, $file);
+							}
 						}
-					}
 
-					sort($files);
-					/**
-					 * Ini untuk download file
-					 * header('Content-Disposition: attachment; filename="' . $filename . '"');
-					 * echo $filedata; exit();
-					 */
-					foreach($files as $f) {
-						echo "
-						<tr style='font-size:12px;'><td>$f</td><td>100 B</td><td>30.11.2014 16:21:38</td><td>drwxrwxrwx(777)</td><td>Edit | Download | Delete | Rename</td></tr>";
-					}
+						sort($files);
+						/**
+						 * Ini untuk download file
+						 * header('Content-Disposition: attachment; filename="' . $filename . '"');
+						 * echo $filedata; exit();
+						 */
+						foreach($files as $f) {
+							echo "
+							<tr style='font-size:12px;'><td>$f</td><td>100 B</td><td>30.11.2014 16:21:38</td><td>drwxrwxrwx(777)</td><td>Edit | Download | Delete | Rename</td></tr>";
+						}
 
-				closedir($handle);
-				} else {
-					echo 'Failed to access folder';
-				}
-				?>
+						closedir($handle);
+					} else {
+						echo 'Failed to access folder';
+					}
+					?>
 				</table>
 			</td>
 		</tr>
