@@ -1,5 +1,4 @@
 # Shell Indonesian Backtrack Team
-Just a Backdoor from [Indonesian Backtrack Team](https://www.indonesianbacktrack.or.id/)
 
 ![Alt text](http://fc00.deviantart.net/fs70/i/2013/269/0/0/indonesian_backtrack_team_wallpaper_part_3_by_ardititanium-d6o2fil.png)
 
