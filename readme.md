@@ -1,6 +1,5 @@
 # Kerang OpenSource Shell
 
-
 ![Kerang](logo.jpg)
 
 # How to use
